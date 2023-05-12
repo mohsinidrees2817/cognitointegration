@@ -52,7 +52,7 @@ const HeaderData = ({ children }) => {
   };
 
   // function to parse token which we recieve in url during social login.
-  function parseJwt() {
+  async function parseJwt() {
     var authData = {
       UserPoolId: "ap-northeast-1_ZpGAnFl7V",
       ClientId: "7c3np67ouk443m5mmer7ajmi2",
@@ -63,7 +63,7 @@ const HeaderData = ({ children }) => {
     };
     var auth = new CognitoAuth(authData);
     auth.userhandler = {
-      onSuccess: function (result) {
+      onSuccess: async function (result) {
         let token = result.idToken.jwtToken;
         var base64Url = token.split(".")[1];
         var base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
@@ -76,27 +76,33 @@ const HeaderData = ({ children }) => {
             })
             .join("")
         );
-        let userdata = JSON.parse(jsonPayload);
-        let userData = {
-          username: userdata?.name,
-          userEmail: userdata?.email,
-          picture:
-            userdata?.identities[0].providerName == "Facebook"
-              ? `https://graph.facebook.com/me/picture?access_token=${userdata.picture}`
-              : userdata.picture,
-          userId: userdata?.identities[0].userId,
-          expTime: userdata?.exp,
-          provider: userdata?.identities[0].providerName,
-        };
-        let user_ID = userdata?.identities[0].userId;
-
-        setUserDetails(userData);
-        localStorage.setItem("user_details", JSON.stringify(userData));
-        setToken(result.accessToken.jwtToken);
-        localStorage.setItem("token", result.accessToken.jwtToken);
-        setUserid(user_ID);
-        localStorage.setItem("user_ID", user_ID);
-        navigate("/");
+        const response = await verifyJwtFromserver(result.accessToken.jwtToken);
+        if (response) {
+          let userdata = JSON.parse(jsonPayload);
+          let userData = {
+            username: userdata?.name,
+            userEmail: userdata?.email,
+            picture:
+              userdata?.identities[0].providerName == "Facebook"
+                ? `https://graph.facebook.com/me/picture?access_token=${userdata.picture}`
+                : userdata.picture,
+            userId: userdata?.identities[0].userId,
+            expTime: userdata?.exp,
+            provider: userdata?.identities[0].providerName,
+          };
+          let user_ID = userdata?.identities[0].userId;
+          setUserDetails(userData);
+          localStorage.setItem("user_details", JSON.stringify(userData));
+          setToken(result.accessToken.jwtToken);
+          localStorage.setItem("token", result.accessToken.jwtToken);
+          setUserid(user_ID);
+          localStorage.setItem("user_ID", user_ID);
+          navigate("/");
+        } else {
+          console.log("invalid jwt token");
+          alert("fail to login try again later");
+          navigate("/");
+        }
       },
       onFailure: function (err) {
         console.log(err, "errrr");
@@ -105,7 +111,6 @@ const HeaderData = ({ children }) => {
     var curUrl = window.location.href;
     auth.parseCognitoWebResponse(curUrl);
   }
-
 
   // function to check is user logged in or not
   const IsloggedIn = async () => {
