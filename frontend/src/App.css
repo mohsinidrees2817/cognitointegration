@@ -267,3 +267,15 @@ transition-duration: 1.5s;
   color: black;
   cursor: pointer;
 }
+
+/* //serverVerification */
+
+.serverVerification{
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  font-size: 20px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}

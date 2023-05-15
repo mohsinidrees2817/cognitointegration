@@ -8,6 +8,7 @@ import HeaderData from "./components/Maincontext/HeaderData";
 import ForgotPassword from "./components/authentication/ForgotPassword";
 import SetPassword from "./components/authentication/SetPassword";
 import Home from "./pages/Home";
+import Serververification from "./components/authentication/Serververification";
 function App() {
   return (
     <BrowserRouter>
@@ -18,6 +19,8 @@ function App() {
           <Route path="/verify" element={<Verifycode />} />
           <Route path="/requestcode" element={<Requestcode />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
+          <Route path="/serververification" element={<Serververification />} />
+
           {/* <Route path="/setpassword" element={<SetPassword />} /> */}
 
           <Route path="/" element={<Home />} />

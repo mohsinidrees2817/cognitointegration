@@ -7,7 +7,8 @@ import Innerlayout from "../layout/Innerlayout";
 import Inputbox from "../common/Inputbox";
 import Button from "../common/Button";
 import { Link, useNavigate } from "react-router-dom";
-import UserPool from "./UserPool";
+import { userPool } from "../../config/cognito";
+
 import Passwordbox from "../common/Passwordbox";
 import Error from "../common/Error";
 const ForgotPassword = () => {
@@ -37,7 +38,7 @@ const ForgotPassword = () => {
     e.preventDefault();
     const user = new CognitoUser({
       Username: email,
-      Pool: UserPool,
+      Pool: userPool,
     });
 
     if (!isVerifyCode) {

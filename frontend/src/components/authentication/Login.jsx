@@ -1,15 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
-import {
-  CognitoUser,
-  AuthenticationDetails,
-  CognitoUserPool,
-} from "amazon-cognito-identity-js";
+import { CognitoUser, AuthenticationDetails } from "amazon-cognito-identity-js";
 import { Link, useNavigate } from "react-router-dom";
 import Layout from "../layout";
 import Innerlayout from "../layout/Innerlayout";
 import Inputbox from "../common/Inputbox";
 import Button from "../common/Button";
-import UserPool from "./UserPool";
+import { userPool } from "../../config/cognito";
 import { Headercontext } from "../Maincontext/HeaderData";
 import { createImageFromInitials } from "../ImageCreation/createImage";
 import { getRandomColor } from "../ImageCreation/getrandomcolor";
@@ -22,8 +18,6 @@ const Login = () => {
     setUserDetails,
     setToken,
     setToastMessage,
-    setConfirmUser,
-    confirmUser,
     setUserid,
     verifyJwtFromserver,
   } = useContext(Headercontext);
@@ -35,26 +29,20 @@ const Login = () => {
     isError: false,
     message: "",
   });
-  const [confirmCode, setConfirmCode] = useState("");
 
   useEffect(() => {
     setError({
       isError: false,
       message: "",
     });
-  }, [email, password, confirmCode]);
+  }, [email, password]);
 
-  var AmazonCognitoIdentity = require("amazon-cognito-identity-js");
-  const userPool = new CognitoUserPool({
-    UserPoolId: "ap-northeast-1_ub6BKbCOS",
-    ClientId: "40l4r3ri3b721utkclttqju4j8",
-  });
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
 
     const user = new CognitoUser({
       Username: email,
-      Pool: UserPool,
+      Pool: userPool,
     });
 
     const authDetails = new AuthenticationDetails({
@@ -63,7 +51,7 @@ const Login = () => {
     });
 
     user.authenticateUser(authDetails, {
-      onSuccess: (data) => {
+      onSuccess: async (data) => {
         console.log(data.accessToken.jwtToken, " accesstoken");
         let userData = {
           username: data.idToken.payload.name,
@@ -77,18 +65,21 @@ const Login = () => {
           expTime: data.accessToken.payload.exp,
           alldata: data,
         };
-        verifyJwtFromserver(data.accessToken.jwtToken);
-        setUserDetails(userData);
-        setToken(data.accessToken.jwtToken);
-        setUserid(data.accessToken.payload.client_id);
-        localStorage.setItem("user_ID", data.accessToken.payload.client_id);
-        localStorage.setItem("user_details", JSON.stringify(userData));
-        localStorage.setItem("token", data.accessToken.jwtToken);
-        setToastMessage({
-          display: true,
-          message: "Logged in successfully",
-        });
-        navigate("/");
+        const response = await verifyJwtFromserver(data.accessToken.jwtToken);
+        if (response !== null && response !== undefined) {
+          setUserDetails(userData);
+          setToken(data.accessToken.jwtToken);
+          setUserid(data.accessToken.payload.client_id);
+          localStorage.setItem("user_ID", data.accessToken.payload.client_id);
+          localStorage.setItem("user_details", JSON.stringify(userData));
+          localStorage.setItem("token", data.accessToken.jwtToken);
+          navigate("/");
+        } else {
+          console.log("invalid jwt token");
+          alert("fail to login try again later");
+          localStorage.clear();
+          navigate("/signin");
+        }
       },
       onFailure: (err) => {
         if (err.message == "User is not confirmed.") {

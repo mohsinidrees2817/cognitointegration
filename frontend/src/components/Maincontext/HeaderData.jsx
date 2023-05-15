@@ -29,9 +29,7 @@ const HeaderData = ({ children }) => {
 
   // make a request to the server and include the authorization header
   const verifyJwtFromserver = async (jwttoken) => {
-    console.log("i runn");
     const API_URL = "http://localhost:4000";
-
     try {
       const response = await axios.get(`${API_URL}/verify`, {
         headers: {
@@ -39,7 +37,7 @@ const HeaderData = ({ children }) => {
         },
       });
       console.log(response.data);
-      return true;
+      return response;
     } catch (error) {
       const message =
         (error.response &&
@@ -50,67 +48,6 @@ const HeaderData = ({ children }) => {
       console.log("error!", message);
     }
   };
-
-  // function to parse token which we recieve in url during social login.
-  async function parseJwt() {
-    var authData = {
-      UserPoolId: "ap-northeast-1_ZpGAnFl7V",
-      ClientId: "7c3np67ouk443m5mmer7ajmi2",
-      RedirectUriSignIn: "https://cognito-integration.vercel.app/",
-      RedirectUriSignOut: "https://cognito-integration.vercel.app/",
-      AppWebDomain: "integration2.auth.ap-northeast-1.amazoncognito.com",
-      TokenScopesArray: ["email"],
-    };
-    var auth = new CognitoAuth(authData);
-    auth.userhandler = {
-      onSuccess: async function (result) {
-        let token = result.idToken.jwtToken;
-        var base64Url = token.split(".")[1];
-        var base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-        var jsonPayload = decodeURIComponent(
-          window
-            .atob(base64)
-            .split("")
-            .map(function (c) {
-              return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-            })
-            .join("")
-        );
-        const response = await verifyJwtFromserver(result.accessToken.jwtToken);
-        if (response) {
-          let userdata = JSON.parse(jsonPayload);
-          let userData = {
-            username: userdata?.name,
-            userEmail: userdata?.email,
-            picture:
-              userdata?.identities[0].providerName == "Facebook"
-                ? `https://graph.facebook.com/me/picture?access_token=${userdata.picture}`
-                : userdata.picture,
-            userId: userdata?.identities[0].userId,
-            expTime: userdata?.exp,
-            provider: userdata?.identities[0].providerName,
-          };
-          let user_ID = userdata?.identities[0].userId;
-          setUserDetails(userData);
-          localStorage.setItem("user_details", JSON.stringify(userData));
-          setToken(result.accessToken.jwtToken);
-          localStorage.setItem("token", result.accessToken.jwtToken);
-          setUserid(user_ID);
-          localStorage.setItem("user_ID", user_ID);
-          navigate("/");
-        } else {
-          console.log("invalid jwt token");
-          alert("fail to login try again later");
-          navigate("/");
-        }
-      },
-      onFailure: function (err) {
-        console.log(err, "errrr");
-      },
-    };
-    var curUrl = window.location.href;
-    auth.parseCognitoWebResponse(curUrl);
-  }
 
   // function to check is user logged in or not
   const IsloggedIn = async () => {
@@ -133,16 +70,7 @@ const HeaderData = ({ children }) => {
         navigate("/signin");
       }
     } else {
-      const url = window.location;
-      const href = url.href;
-      const strs = href.split("#access_token=");
-      const access_token = strs.at(1);
-      if (access_token !== undefined) {
-        parseJwt(access_token);
-        console.log("recieved token in url user just logged in");
-      } else {
-        console.log("user not logged in");
-      }
+      console.log("user not logged in");
     }
   };
 
@@ -157,7 +85,6 @@ const HeaderData = ({ children }) => {
         setToken,
         userDetails,
         setUserDetails,
-
         forgetPassword,
         setForgetPassword,
         toastmessage,
@@ -173,6 +100,7 @@ const HeaderData = ({ children }) => {
         verifyJwtFromserver,
         setConfirmLoader,
         comfirmLoader,
+        verifyJwtFromserver,
       }}
     >
       {children}

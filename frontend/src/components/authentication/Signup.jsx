@@ -7,6 +7,7 @@ import Inputbox from "../common/Inputbox";
 import Error from "../common/Error";
 import Passwordbox from "../common/Passwordbox";
 import { Link } from "react-router-dom";
+import { poolData } from "../../config/cognito";
 
 import { useNavigate } from "react-router-dom";
 
@@ -33,10 +34,7 @@ const Signup = () => {
     });
   }, [email, password, name, confirmpassword]);
 
-  const poolData = {
-    UserPoolId: "ap-northeast-1_ZpGAnFl7V",
-    ClientId: "7c3np67ouk443m5mmer7ajmi2",
-  };
+ 
 
   var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
@@ -105,7 +103,8 @@ const Signup = () => {
         />
         <Inputbox
           type="text"
-          placeholder="Name"
+          placeholder="Name*"
+          required
           handlechange={(e) => {
             setName(e.target.value);
           }}
