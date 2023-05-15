@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import { Headercontext } from "../Maincontext/HeaderData";
+import { poolData, poolDomain } from "../../config/cognito";
 
 const SocialButton = () => {
   const { googleLoader, setGoogleloader, facebookLoader, setFacebookloader } =
@@ -7,7 +8,9 @@ const SocialButton = () => {
 
   return (
     <>
-      <a href="https://integration2.auth.ap-northeast-1.amazoncognito.com/oauth2/authorize?identity_provider=Google&redirect_uri=http://localhost:3001/serververification/&response_type=TOKEN&client_id=7c3np67ouk443m5mmer7ajmi2&scope=email openid profile">
+      <a
+        href={`${poolDomain.domain}/oauth2/authorize?identity_provider=Google&redirect_uri=${poolDomain.socialredirecturi}/&response_type=TOKEN&client_id=${poolData.ClientId}&scope=email openid profile`}
+      >
         <div
           aria-label="Continue with Google"
           className="socialbutton"
@@ -52,7 +55,9 @@ const SocialButton = () => {
           )}
         </div>
       </a>
-      <a href="https://integration2.auth.ap-northeast-1.amazoncognito.com/oauth2/authorize?identity_provider=Facebook&redirect_uri=http://localhost:3001/serververification/&response_type=TOKEN&client_id=7c3np67ouk443m5mmer7ajmi2&scope=email openid profile">
+      <a
+        href={`${poolDomain.domain}/oauth2/authorize?identity_provider=Facebook&redirect_uri=${poolDomain.socialredirecturi}/&response_type=TOKEN&client_id=${poolData.ClientId}&scope=email openid profile`}
+      >
         <div
           aria-label="Continue with Facebook"
           className="socialbutton"
