@@ -13,7 +13,7 @@ const Requestcode = () => {
       >
         <Inputbox type="email" placeholder="Email*" required />
         <Button
-          actiontype={"Send Link"}
+          actiontype={"Send Link."}
           action={() => {
             console.log("scdcscsdcs");
           }}
